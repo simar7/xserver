@@ -1,0 +1,6 @@
+hash: 4f47bfff24f40bcaef065e5c1278def15af247f1a8579d0bd4fcd4641aa9e2dc
+updated: 2016-12-05T21:53:29.019657568-08:00
+imports:
+- name: github.com/krolaw/dhcp4.git
+  version: f61f734b73027e29f7fa2ed623f2ed85a7ef08fa
+testImports: []

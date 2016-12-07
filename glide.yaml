@@ -1,0 +1,3 @@
+package: github.com/simar7/xserver
+import:
+- package: github.com/krolaw/dhcp4.git
