@@ -10,4 +10,4 @@ before_install:
   - go get -v github.com/golang/lint/golint
 
 script:
-  - go test -v go list ./... | grep -v vendor -cover
+  - go test -v github.com/simar7/xserver -cover
