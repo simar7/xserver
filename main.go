@@ -1,12 +1,16 @@
 package main
 
 import (
+	"os"
+
 	dhcp "github.com/krolaw/dhcp4"
 
 	"log"
 	"math/rand"
 	"net"
 	"time"
+
+	"github.com/hashicorp/logutils"
 )
 
 type lease struct {
@@ -52,10 +56,11 @@ func (h *dhcpServerHandler) freeLease() int {
 }
 
 func (h *dhcpServerHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options dhcp.Options) (d dhcp.Packet) {
-	log.Print("message type = ", msgType)
+	log.Print("[DEBUG] ", "message type = ", msgType)
 	switch msgType {
 	case dhcp.Discover:
 		free, nic := -1, p.CHAddr().String()
+		log.Print("[DEBUG] ", nic)
 		for i, v := range h.leases { // Find previous lease
 			if v.nic == nic {
 				free = i
@@ -102,6 +107,13 @@ func (h *dhcpServerHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, o
 }
 
 func main() {
+	filter := &logutils.LevelFilter{
+		Levels:   []logutils.LogLevel{"DEBUG", "WARN", "ERROR"},
+		MinLevel: logutils.LogLevel("DEBUG"),
+		Writer:   os.Stderr,
+	}
+	log.SetOutput(filter)
+
 	log.Printf("xserver is running and serving: %s, %s, %s", "DHCP", "TFTP", "DNS")
 	log.Printf("DHCP on %s", DHCP_SERVER_ADDR)
 	log.Printf("TFTP on %s", TFTP_SERVER_ADDR)
