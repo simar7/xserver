@@ -2,12 +2,15 @@ language: go
 
 go:
   - 1.7
+  - tip
 
 before_install:
+  - go get -u github.com/mattn/goveralls
   - go get -u github.com/stretchr/testify/assert
   - go get -u github.com/krolaw/dhcp4
   - go get -u github.com/hashicorp/logutils
-  - go get -v github.com/golang/lint/golint
+  - go get -u github.com/golang/lint/golint
 
 script:
+  - $HOME/gopath/bin/goveralls -service=travis-ci 
   - go test -v github.com/simar7/xserver -cover
