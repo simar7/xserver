@@ -1,3 +1,9 @@
 package: github.com/simar7/xserver
 import:
 - package: github.com/krolaw/dhcp4.git
+- package: github.com/stretchr/testify
+  version: v1.1.4
+  subpackages:
+  - assert
+- package: github.com/krolaw/dhcp4
+- package: github.com/hashicorp/logutils
