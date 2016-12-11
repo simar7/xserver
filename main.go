@@ -56,7 +56,7 @@ func (h *dhcpServerHandler) freeLease() int {
 }
 
 func (h *dhcpServerHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options dhcp.Options) (d dhcp.Packet) {
-	log.Print("[DEBUG] ", "message type = ", msgType)
+	log.Print("[DEBUG] ", "Incoming message type = ", msgType)
 	switch msgType {
 	case dhcp.Discover:
 		free, nic := -1, p.CHAddr().String()
@@ -78,6 +78,9 @@ func (h *dhcpServerHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, o
 		if server, ok := options[dhcp.OptionServerIdentifier]; ok && !net.IP(server).Equal(h.ip) {
 			return nil // Message not for this dhcp server
 		}
+
+		// Check if DHCP server implements "Requested IP Address" option
+		// RFC: http://www.freesoft.org/CIE/RFC/2131/23.htm
 		reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
 		if reqIP == nil {
 			reqIP = net.IP(p.CIAddr())
@@ -88,7 +91,7 @@ func (h *dhcpServerHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, o
 				if l, exists := h.leases[leaseNum]; !exists || l.nic == p.CHAddr().String() {
 					h.leases[leaseNum] = lease{nic: p.CHAddr().String(), expiry: time.Now().Add(h.leaseDuration)}
 					return dhcp.ReplyPacket(p, dhcp.ACK, h.ip, reqIP, h.leaseDuration,
-						h.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+						h.options.SelectOrder(options[dhcp.OptionParameterRequestList]))
 				}
 			}
 		}
