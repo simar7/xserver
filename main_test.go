@@ -79,3 +79,15 @@ func TestServeDHCPValidRequest_OK(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+func TestServeDHCPRelease_OK(t *testing.T) {
+	dhcpServer := newDHCPServer()
+	p := dhcp.NewPacket(dhcp.BootReply)
+	// Request the IP from the DHCP Server
+	p.SetCIAddr(net.ParseIP("172.10.0.2"))
+
+	expected := dhcp.Packet(nil)
+	actual := dhcpServer.ServeDHCP(p, dhcp.Release, nil)
+
+	assert.Equal(t, expected, actual)
+}
