@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net"
 	"testing"
 	"time"
@@ -52,6 +53,29 @@ func TestServeDHCPInvalidRequest_OK(t *testing.T) {
 
 	expected := dhcp.ReplyPacket(dhcp.NewPacket(dhcp.BootReply), dhcp.NAK, dhcpServer.ip, nil, 0, nil)
 	actual := dhcpServer.ServeDHCP(dhcp.NewPacket(dhcp.BootReply), dhcp.Request, dhcpServer.options)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestServeDHCPValidRequest_OK(t *testing.T) {
+	dhcpServer := newDHCPServer()
+	p := dhcp.NewPacket(dhcp.BootReply)
+	// Request the IP from the DHCP Server
+	p.SetCIAddr(net.ParseIP("172.10.0.2"))
+
+	reqIP := net.IP(dhcpServer.options[dhcp.OptionRequestedIPAddress])
+	if reqIP == nil {
+		reqIP = net.IP(p.CIAddr())
+		log.Print("[DEBUG] ", "Request IP: ", reqIP)
+	}
+
+	expected := dhcp.ReplyPacket(p, dhcp.ACK, dhcpServer.ip, reqIP,
+		dhcpServer.leaseDuration, dhcpServer.options.SelectOrder(dhcpServer.options[dhcp.OptionParameterRequestList]))
+	actual := dhcpServer.ServeDHCP(p, dhcp.Request, dhcp.Options{
+		dhcp.OptionTFTPServerName:   []byte(TFTP_SERVER_ADDR),
+		dhcp.OptionBootFileName:     []byte(PXELINUX_LOADER),
+		dhcp.OptionDomainNameServer: []byte(DNS_SERVER_ADDR),
+	})
 
 	assert.Equal(t, expected, actual)
 }
