@@ -34,15 +34,24 @@ func TestFreeLease_OK(t *testing.T) {
 	assert.NotEqual(t, NotExpected, actual)
 }
 
-func TestServeDHCP(t *testing.T) {
+func TestServeDHCPDiscover_OK(t *testing.T) {
 	dhcpServer := newDHCPServer()
-	p := dhcp.NewPacket(dhcp.BootReply)
 
-	expected := dhcp.ReplyPacket(p, dhcp.Offer, dhcpServer.ip,
+	expected := dhcp.ReplyPacket(dhcp.NewPacket(dhcp.BootReply), dhcp.Offer, dhcpServer.ip,
 		dhcp.IPAdd(dhcpServer.start, dhcpServer.freeLease()),
 		dhcpServer.leaseDuration, dhcpServer.options.SelectOrderOrAll(nil))
-	actual := dhcpServer.ServeDHCP(p, dhcp.Discover, nil)
+	actual := dhcpServer.ServeDHCP(dhcp.NewPacket(dhcp.BootReply), dhcp.Discover, nil)
 
-	//TODO: Need a strong assertion
-	assert.ObjectsAreEqual(actual, expected)
+	// TODO: Need a strong assertion
+	// See Issue: https://github.com/simar7/xserver/issues/8
+	assert.ObjectsAreEqual(expected, actual)
+}
+
+func TestServeDHCPInvalidRequest_OK(t *testing.T) {
+	dhcpServer := newDHCPServer()
+
+	expected := dhcp.ReplyPacket(dhcp.NewPacket(dhcp.BootReply), dhcp.NAK, dhcpServer.ip, nil, 0, nil)
+	actual := dhcpServer.ServeDHCP(dhcp.NewPacket(dhcp.BootReply), dhcp.Request, dhcpServer.options)
+
+	assert.Equal(t, expected, actual)
 }
