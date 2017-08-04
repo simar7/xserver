@@ -5,11 +5,7 @@ go:
   - tip
 
 before_install:
-  - go get -u github.com/mattn/goveralls
-  - go get -u github.com/stretchr/testify/assert
-  - go get -u github.com/krolaw/dhcp4
-  - go get -u github.com/hashicorp/logutils
-  - go get -u github.com/golang/lint/golint
+  - go get -d ./...
 
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci 
