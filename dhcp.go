@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
 	"math/rand"
 	"net"
 	"time"
 
 	dhcp "github.com/krolaw/dhcp4"
+	log "github.com/sirupsen/logrus"
 )
 
 type lease struct {
@@ -52,11 +52,13 @@ func (h *dhcpServerHandler) freeLease() int {
 }
 
 func (h *dhcpServerHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options dhcp.Options) (d dhcp.Packet) {
-	log.Print("[DEBUG] ", "Incoming message type = ", msgType)
+	logger := log.New()
+	rl := NewLogger(logger.Writer())
+	rl.Info(msgType)
+
 	switch msgType {
 	case dhcp.Discover:
 		free, nic := -1, p.CHAddr().String()
-		log.Print("[DEBUG] ", nic)
 		for i, v := range h.leases { // Find previous lease
 			if v.nic == nic {
 				free = i
