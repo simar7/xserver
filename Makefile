@@ -1,9 +1,8 @@
 test:
-    go test -v
+	go test -v
 
 build:
 	go build
 
 clean:
 	go clean
-
