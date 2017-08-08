@@ -10,4 +10,7 @@ before_install:
 
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci 
-  - go test -v github.com/simar7/xserver -cover
+  - go test -race -coverprofile=coverage.out -covermode=atomic -v github.com/simar7/xserver
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
