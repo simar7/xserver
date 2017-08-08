@@ -23,13 +23,16 @@ func main() {
 	logger := log.New()
 	rl := NewLogger(logger.Writer())
 
-	rl.Infof("xserver is running and serving: %s, %s, %s", "DHCP", "TFTP", "DNS")
-	rl.Infof("DHCP on %s", DHCP_SERVER_ADDR)
-	rl.Infof("TFTP on %s", TFTP_SERVER_ADDR)
-	rl.Infof("DNS  on %s", DNS_SERVER_ADDR)
+	rl.Infof("xserver is running and serving: %s, %s", "DHCP", "DNS")
+	rl.Infof("DHCP on %s:%d", DHCP_SERVER_ADDR, DHCP_SERVER_PORT)
+	rl.Infof("DNS  on %s:%d", DNS_SERVER_ADDR, DNS_SERVER_PORT)
 
 	dhcpHandler := newDHCPServer()
+	dnsHandler := dnsServerHandler{
+		ds: newDefaultDNSServer(),
+	}
 
 	// TODO: Add multi interface support with dhcp.ListenAndServeIf()
 	rl.Fatal(dhcp.ListenAndServe(dhcpHandler))
+	dnsHandler.RouteDNS()
 }
