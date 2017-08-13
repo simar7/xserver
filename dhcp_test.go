@@ -61,7 +61,7 @@ func TestServeDHCPValidRequest_OK(t *testing.T) {
 	dhcpServer := newDHCPServer()
 	p := dhcp.NewPacket(dhcp.BootReply)
 	// Request the IP from the DHCP Server
-	p.SetCIAddr(net.ParseIP("172.10.0.2"))
+	p.SetCIAddr(net.ParseIP("127.0.0.2"))
 
 	reqIP := net.IP(dhcpServer.options[dhcp.OptionRequestedIPAddress])
 	if reqIP == nil {
