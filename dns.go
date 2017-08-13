@@ -11,6 +11,33 @@ type dnsServerHandler struct {
 	ds *dns.Server
 }
 
+// TODO: Move in-memory mapping toa real datastore
+var records = map[string]string{
+	"foo.com.": "192.168.0.1",
+}
+
+func parseQuery(m *dns.Msg) {
+	rl := NewLogger(log.New().Writer())
+
+	for _, q := range m.Question {
+		switch q.Qtype {
+		case dns.TypeA:
+			rl.Info("Query for: ", q.Name)
+			ip := records[q.Name]
+			if ip != "" {
+				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
+				if err == nil {
+					m.Answer = append(m.Answer, rr)
+				}
+			} else {
+				rl.Error("Record: ", q.Name, " not found")
+			}
+		default:
+			rl.Info("Query type: ", q.Qtype, " is currently not supported")
+		}
+	}
+}
+
 func serve(w dns.ResponseWriter, r *dns.Msg) {
 	m := new(dns.Msg)
 	m.SetReply(r)
@@ -19,8 +46,7 @@ func serve(w dns.ResponseWriter, r *dns.Msg) {
 
 	switch r.Opcode {
 	case dns.OpcodeQuery:
-		// TODO: Return a valid reply for a query
-		return
+		parseQuery(m)
 	}
 	w.WriteMsg(m)
 }
@@ -39,16 +65,14 @@ func newDefaultDNSServer() *dns.Server {
 	}
 }
 
-func (h *dnsServerHandler) RouteDNS() {
-	logger := log.New()
-	rl := NewLogger(logger.Writer())
+func (h *dnsServerHandler) RouteDNS() error {
+	rl := NewLogger(log.New().Writer())
 
-	dns.HandleFunc("service.", serve)
+	dns.HandleFunc("com.", serve)
 	err := h.ds.ListenAndServe()
 	if err != nil {
 		rl.Error("Failed to start DNS server", err)
-		// FIXME: This needs to be blocking in nature
-		//return err
+		return err
 	}
-	defer h.ds.Shutdown()
+	return nil
 }

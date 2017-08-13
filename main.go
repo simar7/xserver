@@ -2,12 +2,16 @@ package main
 
 import (
 	"os"
+	"sync"
 
 	dhcp "github.com/krolaw/dhcp4"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	// WaitGroup for multiple servers on separate co-routines
+	wg := &sync.WaitGroup{}
+
 	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.JSONFormatter{})
 
@@ -20,19 +24,27 @@ func main() {
 
 	log.WithFields(log.Fields{})
 
-	logger := log.New()
-	rl := NewLogger(logger.Writer())
-
-	rl.Infof("xserver is running and serving: %s, %s", "DHCP", "DNS")
-	rl.Infof("DHCP on %s:%d", DHCP_SERVER_ADDR, DHCP_SERVER_PORT)
-	rl.Infof("DNS  on %s:%d", DNS_SERVER_ADDR, DNS_SERVER_PORT)
+	rl := NewLogger(log.New().Writer())
 
 	dhcpHandler := newDHCPServer()
 	dnsHandler := dnsServerHandler{
 		ds: newDefaultDNSServer(),
 	}
 
-	// TODO: Add multi interface support with dhcp.ListenAndServeIf()
-	rl.Fatal(dhcp.ListenAndServe(dhcpHandler))
-	dnsHandler.RouteDNS()
+	go func() {
+		wg.Add(1)
+		rl.Fatal(dhcp.ListenAndServe(dhcpHandler))
+		wg.Done()
+	}()
+	rl.Infof("DHCP on %s:%d", DHCP_SERVER_ADDR, DHCP_SERVER_PORT)
+
+	go func() {
+		wg.Add(1)
+		rl.Fatal(dnsHandler.RouteDNS())
+		wg.Done()
+	}()
+	rl.Infof("DNS  on %s:%d", DNS_SERVER_ADDR, DNS_SERVER_PORT)
+
+	rl.Infof("xserver is running and serving: %s, %s", "DHCP", "DNS")
+	wg.Wait()
 }
