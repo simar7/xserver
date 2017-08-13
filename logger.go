@@ -13,7 +13,6 @@ type logger struct {
 	entry *logrus.Entry
 }
 
-// Logger is the interface for loggers used in the Prometheus components.
 type Logger interface {
 	Debug(...interface{})
 	Debugln(...interface{})
