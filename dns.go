@@ -51,23 +51,23 @@ func serve(w dns.ResponseWriter, r *dns.Msg) {
 	w.WriteMsg(m)
 }
 
-func newDNSServer(addr string, port int, conntype string) *dns.Server {
+func newDNSServerHandler(addr string, port int, conntype string) *dns.Server {
 	return &dns.Server{
 		Addr: fmt.Sprintf("%s:%d", addr, port),
 		Net:  conntype,
 	}
 }
 
-func newDefaultDNSServer() *dns.Server {
-	return &dns.Server{
-		Addr: fmt.Sprintf("%s:%d", DNS_SERVER_ADDR, DNS_SERVER_PORT),
-		Net:  "udp",
+func newDefaultDNSServerHandler() *dnsServerHandler {
+	return &dnsServerHandler{
+		ds: newDNSServerHandler(DNS_SERVER_ADDR, DNS_SERVER_PORT, "udp"),
 	}
 }
 
 func (h *dnsServerHandler) RouteDNS() error {
 	rl := NewLogger(log.New().Writer())
 
+	// TODO: Add more domains to the serving list
 	dns.HandleFunc("com.", serve)
 	err := h.ds.ListenAndServe()
 	if err != nil {

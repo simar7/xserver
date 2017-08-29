@@ -27,9 +27,7 @@ func main() {
 	rl := NewLogger(log.New().Writer())
 
 	dhcpHandler := newDHCPServer()
-	dnsHandler := dnsServerHandler{
-		ds: newDefaultDNSServer(),
-	}
+	dnsHandler := newDefaultDNSServerHandler()
 
 	go func() {
 		wg.Add(1)
