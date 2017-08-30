@@ -105,7 +105,6 @@ func (h *dhcpServerHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, o
 		}
 
 	case dhcp.Inform:
-		//nic := p.CHAddr().String()
 		return dhcp.ReplyPacket(p, dhcp.ACK, h.ip, nil, 0, nil)
 	}
 	return nil
