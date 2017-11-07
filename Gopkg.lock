@@ -55,9 +55,15 @@
   packages = ["unix","windows"]
   revision = "2d6f6f883a06fc0d5f4b14a81e4c28705ea64c15"
 
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/ns1/ns1-go.v2"
+  packages = ["rest","rest/model/account","rest/model/data","rest/model/dns","rest/model/filter","rest/model/monitor"]
+  revision = "c563826f4cbef9c11bebeb9f20a3f7afe9c1e2f4"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2249ef4182473e30dcffd681b110c1b8a716a515f6c481fc14514b9ceafdcfc6"
+  inputs-digest = "08cd64b0c66518158e2d6ada3472c8c9eb3e0865d766fd56b103018f45bb0028"
   solver-name = "gps-cdcl"
   solver-version = 1
